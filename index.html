@@ -1,0 +1,2828 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Academate - Student Productivity Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .gradient-bg {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      }
+
+      .accent-gradient {
+        background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+      }
+
+      .hover-lift {
+        transition: all 0.3s ease;
+      }
+
+      .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .progress-bar {
+        background: linear-gradient(90deg, #0f766e 0%, #14b8a6 100%);
+      }
+
+      .mood-icon {
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .mood-icon:hover {
+        transform: scale(1.1);
+      }
+
+      .mood-icon.active {
+        color: #0f766e;
+        background: rgba(15, 118, 110, 0.1);
+      }
+
+      .floating-chat {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        z-index: 1000;
+      }
+
+      .chat-expanded {
+        width: 280px;
+        height: 350px;
+      }
+
+      .chat-collapsed {
+        width: 56px;
+        height: 56px;
+      }
+
+      @media (min-width: 640px) {
+        .floating-chat {
+          bottom: 24px;
+          right: 24px;
+        }
+
+        .chat-expanded {
+          width: 320px;
+          height: 400px;
+        }
+
+        .chat-collapsed {
+          width: 60px;
+          height: 60px;
+        }
+      }
+
+      .kanban-column {
+        min-height: 400px;
+      }
+
+      .task-card {
+        transition: all 0.2s ease;
+      }
+
+      .task-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .timer-circle {
+        stroke-dasharray: 283;
+        stroke-dashoffset: 283;
+        transition: stroke-dashoffset 1s linear;
+      }
+
+      .focus-mode-overlay {
+        background: rgba(15, 118, 110, 0.95);
+        backdrop-filter: blur(20px);
+      }
+    </style>
+  </head>
+  <body class="gradient-bg min-h-screen">
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-gray-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2 sm:space-x-3">
+            <div
+              class="w-7 h-7 sm:w-8 sm:h-8 accent-gradient rounded-lg flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4 sm:w-5 sm:h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                ></path>
+              </svg>
+            </div>
+            <h1 class="text-lg sm:text-xl font-semibold text-gray-900">
+              Academate
+            </h1>
+          </div>
+
+          <!-- Desktop Navigation -->
+          <div class="hidden lg:flex items-center space-x-6">
+            <button
+              onclick="switchView('dashboard')"
+              class="nav-btn text-gray-600 hover:text-teal-600 font-medium transition-colors"
+            >
+              Dashboard
+            </button>
+            <button
+              onclick="switchView('tasks')"
+              class="nav-btn text-gray-600 hover:text-teal-600 font-medium transition-colors"
+            >
+              Tasks
+            </button>
+            <button
+              onclick="switchView('focus')"
+              class="nav-btn text-gray-600 hover:text-teal-600 font-medium transition-colors"
+            >
+              Focus
+            </button>
+            <button
+              onclick="switchView('resources')"
+              class="nav-btn text-gray-600 hover:text-teal-600 font-medium transition-colors"
+            >
+              Resources
+            </button>
+            <button
+              onclick="switchView('collaborate')"
+              class="nav-btn text-gray-600 hover:text-teal-600 font-medium transition-colors"
+            >
+              Collaborate
+            </button>
+            <button
+              onclick="switchView('wellness')"
+              class="nav-btn text-gray-600 hover:text-teal-600 font-medium transition-colors"
+            >
+              Wellness
+            </button>
+
+            <div
+              class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center"
+            >
+              <span class="text-sm font-medium text-teal-700">JS</span>
+            </div>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <div class="lg:hidden flex items-center space-x-3">
+            <div
+              class="w-7 h-7 sm:w-8 sm:h-8 bg-teal-100 rounded-full flex items-center justify-center"
+            >
+              <span class="text-xs sm:text-sm font-medium text-teal-700"
+                >JS</span
+              >
+            </div>
+            <button
+              onclick="toggleMobileMenu()"
+              class="p-2 text-gray-600 hover:text-teal-600 transition-colors"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div
+          id="mobile-menu"
+          class="lg:hidden hidden mt-4 pb-4 border-t border-gray-200"
+        >
+          <div class="grid grid-cols-2 gap-2 mt-4">
+            <button
+              onclick="switchView('dashboard')"
+              class="nav-btn mobile-nav-btn text-left px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg font-medium transition-colors"
+            >
+              Dashboard
+            </button>
+            <button
+              onclick="switchView('tasks')"
+              class="nav-btn mobile-nav-btn text-left px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg font-medium transition-colors"
+            >
+              Tasks
+            </button>
+            <button
+              onclick="switchView('focus')"
+              class="nav-btn mobile-nav-btn text-left px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg font-medium transition-colors"
+            >
+              Focus
+            </button>
+            <button
+              onclick="switchView('resources')"
+              class="nav-btn mobile-nav-btn text-left px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg font-medium transition-colors"
+            >
+              Resources
+            </button>
+            <button
+              onclick="switchView('collaborate')"
+              class="nav-btn mobile-nav-btn text-left px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg font-medium transition-colors"
+            >
+              Collaborate
+            </button>
+            <button
+              onclick="switchView('wellness')"
+              class="nav-btn mobile-nav-btn text-left px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg font-medium transition-colors"
+            >
+              Wellness
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
+      <!-- Dashboard View -->
+      <div id="dashboard-view" class="view-content">
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+            Good morning, John! 👋
+          </h2>
+          <p class="text-gray-600">Ready to make today productive?</p>
+        </div>
+
+        <div
+          class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
+        >
+          <!-- Task Overview Card -->
+          <div
+            class="lg:col-span-2 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 hover-lift"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">Today's Tasks</h3>
+              <span class="text-sm text-gray-500">5 pending</span>
+            </div>
+
+            <div class="space-y-3">
+              <div
+                class="flex items-center justify-between p-3 bg-red-50 rounded-lg border-l-4 border-red-400"
+              >
+                <div>
+                  <p class="font-medium text-gray-900">
+                    Database Design Assignment
+                  </p>
+                  <p class="text-sm text-gray-600">Due in 2 hours</p>
+                </div>
+                <span
+                  class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full"
+                  >High</span
+                >
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400"
+              >
+                <div>
+                  <p class="font-medium text-gray-900">Group Project Meeting</p>
+                  <p class="text-sm text-gray-600">Tomorrow 2:00 PM</p>
+                </div>
+                <span
+                  class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full"
+                  >Medium</span
+                >
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-green-50 rounded-lg border-l-4 border-green-400"
+              >
+                <div>
+                  <p class="font-medium text-gray-900">Read Chapter 5</p>
+                  <p class="text-sm text-gray-600">This week</p>
+                </div>
+                <span
+                  class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full"
+                  >Low</span
+                >
+              </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Weekly Progress</span>
+                <span class="font-medium text-gray-900">68%</span>
+              </div>
+              <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
+                <div
+                  class="progress-bar h-2 rounded-full"
+                  style="width: 68%"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wellness Check-in Widget -->
+          <div
+            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 hover-lift"
+          >
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+              How are you feeling?
+            </h3>
+
+            <div class="flex justify-between mb-4">
+              <button
+                class="mood-icon w-12 h-12 rounded-full flex items-center justify-center"
+                onclick="selectMood('stressed')"
+              >
+                <svg
+                  class="w-6 h-6 text-red-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 15s1.5-2 4-2 4 2 4 2"></path>
+                  <path d="M9 9h.01"></path>
+                  <path d="M15 9h.01"></path>
+                </svg>
+              </button>
+              <button
+                class="mood-icon w-12 h-12 rounded-full flex items-center justify-center"
+                onclick="selectMood('neutral')"
+              >
+                <svg
+                  class="w-6 h-6 text-yellow-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                  <path d="M9 9h.01"></path>
+                  <path d="M15 9h.01"></path>
+                </svg>
+              </button>
+              <button
+                class="mood-icon active w-12 h-12 rounded-full flex items-center justify-center"
+                onclick="selectMood('happy')"
+              >
+                <svg
+                  class="w-6 h-6 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                  <path d="M9 9h.01"></path>
+                  <path d="M15 9h.01"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="text-center">
+              <p class="text-sm text-gray-600 mb-3">Feeling good today!</p>
+              <button
+                class="w-full bg-teal-600 text-white py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors"
+              >
+                Log Mood
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motivational Banner -->
+        <div
+          class="bg-gradient-to-r from-teal-600 to-teal-700 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white mb-6 sm:mb-8"
+        >
+          <div class="flex items-start justify-between">
+            <div class="flex-1 pr-4">
+              <h3 class="text-base sm:text-lg font-semibold mb-2">
+                💡 Daily Tip
+              </h3>
+              <p class="text-sm sm:text-base text-teal-100">
+                Break large tasks into smaller, manageable chunks. You'll feel
+                more accomplished and less overwhelmed!
+              </p>
+            </div>
+            <svg
+              class="w-12 h-12 sm:w-16 sm:h-16 text-teal-300 opacity-50 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <button
+            onclick="switchView('tasks')"
+            class="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 hover-lift text-left"
+          >
+            <div
+              class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3"
+            >
+              <svg
+                class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                ></path>
+              </svg>
+            </div>
+            <h4 class="text-sm sm:text-base font-medium text-gray-900">
+              Add Task
+            </h4>
+            <p class="text-xs sm:text-sm text-gray-600">Create new task</p>
+          </button>
+
+          <button
+            onclick="startFocusMode()"
+            class="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 hover-lift text-left"
+          >
+            <div
+              class="w-8 h-8 sm:w-10 sm:h-10 bg-teal-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3"
+            >
+              <svg
+                class="w-4 h-4 sm:w-5 sm:h-5 text-teal-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12,6 12,12 16,14"></polyline>
+              </svg>
+            </div>
+            <h4 class="text-sm sm:text-base font-medium text-gray-900">
+              Focus Mode
+            </h4>
+            <p class="text-xs sm:text-sm text-gray-600">Start 25min session</p>
+          </button>
+
+          <button
+            onclick="switchView('collaborate')"
+            class="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 hover-lift text-left"
+          >
+            <div
+              class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3"
+            >
+              <svg
+                class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                ></path>
+              </svg>
+            </div>
+            <h4 class="text-sm sm:text-base font-medium text-gray-900">
+              Collaborate
+            </h4>
+            <p class="text-xs sm:text-sm text-gray-600">Join group work</p>
+          </button>
+
+          <button
+            onclick="switchView('resources')"
+            class="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 hover-lift text-left"
+          >
+            <div
+              class="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3"
+            >
+              <svg
+                class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                ></path>
+              </svg>
+            </div>
+            <h4 class="text-sm sm:text-base font-medium text-gray-900">
+              Resources
+            </h4>
+            <p class="text-xs sm:text-sm text-gray-600">Study materials</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tasks View -->
+      <div id="tasks-view" class="view-content hidden">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+              Task Management
+            </h2>
+            <p class="text-gray-600">Organize and track your assignments</p>
+          </div>
+          <button
+            onclick="showAddTaskModal()"
+            class="bg-teal-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors flex items-center space-x-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              ></path>
+            </svg>
+            <span>Add Task</span>
+          </button>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          <!-- To Do Column -->
+          <div
+            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-3 sm:p-4"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-gray-900">To Do</h3>
+              <span
+                class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm"
+                >3</span
+              >
+            </div>
+            <div class="kanban-column space-y-3">
+              <div
+                class="task-card bg-red-50 border border-red-200 rounded-lg p-3"
+              >
+                <div class="flex items-start justify-between mb-2">
+                  <h4 class="font-medium text-gray-900">Database Design</h4>
+                  <span
+                    class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs"
+                    >High</span
+                  >
+                </div>
+                <p class="text-sm text-gray-600 mb-3">
+                  Complete ER diagram and normalization
+                </p>
+                <div
+                  class="flex items-center justify-between text-xs text-gray-500"
+                >
+                  <span>Due: Today 6:00 PM</span>
+                  <div class="flex items-center space-x-1">
+                    <svg
+                      class="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12,6 12,12 16,14"></polyline>
+                    </svg>
+                    <span>2h left</span>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="task-card bg-yellow-50 border border-yellow-200 rounded-lg p-3"
+              >
+                <div class="flex items-start justify-between mb-2">
+                  <h4 class="font-medium text-gray-900">Java Programming</h4>
+                  <span
+                    class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs"
+                    >Medium</span
+                  >
+                </div>
+                <p class="text-sm text-gray-600 mb-3">
+                  Implement sorting algorithms
+                </p>
+                <div
+                  class="flex items-center justify-between text-xs text-gray-500"
+                >
+                  <span>Due: Tomorrow</span>
+                  <div class="flex items-center space-x-1">
+                    <svg
+                      class="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      ></path>
+                    </svg>
+                    <span>3 files</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- In Progress Column -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-gray-900">In Progress</h3>
+              <span
+                class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm"
+                >1</span
+              >
+            </div>
+            <div class="kanban-column space-y-3">
+              <div
+                class="task-card bg-blue-50 border border-blue-200 rounded-lg p-3"
+              >
+                <div class="flex items-start justify-between mb-2">
+                  <h4 class="font-medium text-gray-900">Web Development</h4>
+                  <span
+                    class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs"
+                    >Medium</span
+                  >
+                </div>
+                <p class="text-sm text-gray-600 mb-3">
+                  Build responsive portfolio site
+                </p>
+                <div class="mb-3">
+                  <div
+                    class="flex items-center justify-between text-xs text-gray-600 mb-1"
+                  >
+                    <span>Progress</span>
+                    <span>60%</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-1.5">
+                    <div
+                      class="bg-blue-500 h-1.5 rounded-full"
+                      style="width: 60%"
+                    ></div>
+                  </div>
+                </div>
+                <div
+                  class="flex items-center justify-between text-xs text-gray-500"
+                >
+                  <span>Due: Next week</span>
+                  <span>4 days left</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Done Column -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-gray-900">Done</h3>
+              <span
+                class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-sm"
+                >2</span
+              >
+            </div>
+            <div class="kanban-column space-y-3">
+              <div
+                class="task-card bg-green-50 border border-green-200 rounded-lg p-3"
+              >
+                <div class="flex items-start justify-between mb-2">
+                  <h4 class="font-medium text-gray-900">System Analysis</h4>
+                  <svg
+                    class="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                </div>
+                <p class="text-sm text-gray-600 mb-3">
+                  Requirements gathering document
+                </p>
+                <div
+                  class="flex items-center justify-between text-xs text-gray-500"
+                >
+                  <span>Completed: Yesterday</span>
+                  <span>Grade: A</span>
+                </div>
+              </div>
+
+              <div
+                class="task-card bg-green-50 border border-green-200 rounded-lg p-3"
+              >
+                <div class="flex items-start justify-between mb-2">
+                  <h4 class="font-medium text-gray-900">Math Quiz</h4>
+                  <svg
+                    class="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                </div>
+                <p class="text-sm text-gray-600 mb-3">
+                  Linear algebra problems
+                </p>
+                <div
+                  class="flex items-center justify-between text-xs text-gray-500"
+                >
+                  <span>Completed: 2 days ago</span>
+                  <span>Grade: B+</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pomodoro Timer Widget -->
+        <div
+          class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+        >
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Pomodoro Timer</h3>
+            <div class="flex items-center space-x-2 text-sm text-gray-600">
+              <span>Session 1 of 4</span>
+              <div class="flex space-x-1">
+                <div class="w-2 h-2 bg-teal-600 rounded-full"></div>
+                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-center space-x-8">
+            <div class="relative">
+              <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  stroke="#e5e7eb"
+                  stroke-width="8"
+                  fill="none"
+                ></circle>
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  stroke="#0f766e"
+                  stroke-width="8"
+                  fill="none"
+                  class="timer-circle"
+                  style="stroke-dashoffset: 141.5"
+                ></circle>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                  <div
+                    class="text-2xl font-bold text-gray-900"
+                    id="timer-display"
+                  >
+                    25:00
+                  </div>
+                  <div class="text-sm text-gray-600">Focus Time</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <button
+                onclick="startTimer()"
+                class="w-full bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors"
+              >
+                Start Focus Session
+              </button>
+              <button
+                onclick="pauseTimer()"
+                class="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Pause
+              </button>
+              <button
+                onclick="resetTimer()"
+                class="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Focus Mode View -->
+      <div id="focus-view" class="view-content hidden">
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+            Focus & Distraction Control
+          </h2>
+          <p class="text-gray-600">
+            Minimize distractions and maximize productivity
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- Focus Mode Controls -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+          >
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Focus Mode</h3>
+
+            <div class="space-y-4">
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div>
+                  <p class="font-medium text-gray-900">Block Social Media</p>
+                  <p class="text-sm text-gray-600">
+                    Prevent access to distracting sites
+                  </p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" checked />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div>
+                  <p class="font-medium text-gray-900">Ambient Sounds</p>
+                  <p class="text-sm text-gray-600">
+                    Play background focus music
+                  </p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div>
+                  <p class="font-medium text-gray-900">Notifications</p>
+                  <p class="text-sm text-gray-600">Silence non-urgent alerts</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" checked />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"
+                  ></div>
+                </label>
+              </div>
+            </div>
+
+            <button
+              onclick="startFocusMode()"
+              class="w-full mt-6 bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors"
+            >
+              Start Focus Session
+            </button>
+          </div>
+
+          <!-- Rewards Panel -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+          >
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+              Achievements & Rewards
+            </h3>
+
+            <div class="grid grid-cols-3 gap-3 mb-6">
+              <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                <div
+                  class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2"
+                >
+                  <svg
+                    class="w-4 h-4 text-yellow-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                    ></path>
+                  </svg>
+                </div>
+                <p class="text-xs font-medium text-gray-900">Focus Master</p>
+                <p class="text-xs text-gray-600">25 sessions</p>
+              </div>
+
+              <div class="text-center p-3 bg-green-50 rounded-lg">
+                <div
+                  class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                </div>
+                <p class="text-xs font-medium text-gray-900">Task Crusher</p>
+                <p class="text-xs text-gray-600">50 completed</p>
+              </div>
+
+              <div class="text-center p-3 bg-purple-50 rounded-lg">
+                <div
+                  class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2"
+                >
+                  <svg
+                    class="w-4 h-4 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    ></path>
+                  </svg>
+                </div>
+                <p class="text-xs font-medium text-gray-900">Streak King</p>
+                <p class="text-xs text-gray-600">7 days</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-900"
+                  >Current Streak</span
+                >
+                <span class="text-sm text-teal-600 font-semibold">7 days</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-teal-600 h-2 rounded-full"
+                  style="width: 70%"
+                ></div>
+              </div>
+              <p class="text-xs text-gray-600">
+                3 more days to reach your goal!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            Weekly Leaderboard
+          </h3>
+
+          <div class="space-y-3">
+            <div
+              class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200"
+            >
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                >
+                  1
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">Sarah Chen</p>
+                  <p class="text-sm text-gray-600">42 focus hours</p>
+                </div>
+              </div>
+              <svg
+                class="w-5 h-5 text-yellow-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                ></path>
+              </svg>
+            </div>
+
+            <div
+              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+            >
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                >
+                  2
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">Mike Rodriguez</p>
+                  <p class="text-sm text-gray-600">38 focus hours</p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center justify-between p-3 bg-teal-50 rounded-lg border border-teal-200"
+            >
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                >
+                  3
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">You (John Smith)</p>
+                  <p class="text-sm text-gray-600">35 focus hours</p>
+                </div>
+              </div>
+              <span class="text-sm text-teal-600 font-medium"
+                >+2 from yesterday</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resources View -->
+      <div id="resources-view" class="view-content hidden">
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+            Learning Resources Hub
+          </h2>
+          <p class="text-gray-600">Access study materials, notes, and Q&A</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <!-- Tutorial Library -->
+          <div
+            class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">
+                Tutorial Library
+              </h3>
+              <div class="relative">
+                <input
+                  type="text"
+                  placeholder="Search tutorials..."
+                  class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                />
+                <svg
+                  class="w-4 h-4 text-gray-400 absolute left-3 top-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div
+                class="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 hover-lift cursor-pointer"
+              >
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-5 h-5 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">
+                      Database Normalization
+                    </h4>
+                    <p class="text-sm text-gray-600">
+                      Complete guide to 1NF, 2NF, 3NF
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                  <span>45 min</span>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200 hover-lift cursor-pointer"
+              >
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-5 h-5 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">Java OOP Concepts</h4>
+                    <p class="text-sm text-gray-600">
+                      Inheritance, Polymorphism, Encapsulation
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                  <span>1h 20min</span>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-200 hover-lift cursor-pointer"
+              >
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-5 h-5 text-purple-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">
+                      Web Development Basics
+                    </h4>
+                    <p class="text-sm text-gray-600">
+                      HTML, CSS, JavaScript fundamentals
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                  <span>2h 15min</span>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Tool -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">Quick Notes</h3>
+              <button class="text-teal-600 hover:text-teal-700">
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              <div
+                class="p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400"
+              >
+                <h4 class="font-medium text-gray-900 text-sm">Database Keys</h4>
+                <p class="text-xs text-gray-600 mt-1">
+                  Primary, Foreign, Candidate keys...
+                </p>
+                <span class="text-xs text-gray-500">2 hours ago</span>
+              </div>
+
+              <div class="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                <h4 class="font-medium text-gray-900 text-sm">Java Methods</h4>
+                <p class="text-xs text-gray-600 mt-1">
+                  Static vs instance methods...
+                </p>
+                <span class="text-xs text-gray-500">Yesterday</span>
+              </div>
+
+              <div
+                class="p-3 bg-green-50 rounded-lg border-l-4 border-green-400"
+              >
+                <h4 class="font-medium text-gray-900 text-sm">CSS Flexbox</h4>
+                <p class="text-xs text-gray-600 mt-1">
+                  justify-content, align-items...
+                </p>
+                <span class="text-xs text-gray-500">3 days ago</span>
+              </div>
+            </div>
+
+            <button
+              class="w-full mt-4 bg-teal-600 text-white py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors text-sm"
+            >
+              Create New Note
+            </button>
+          </div>
+        </div>
+
+        <!-- Q&A Forum -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Q&A Forum</h3>
+            <button
+              class="bg-teal-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors text-sm"
+            >
+              Ask Question
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div class="border border-gray-200 rounded-lg p-4 hover-lift">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"
+                  >
+                    <span class="text-sm font-medium text-blue-600">AM</span>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">
+                      How to implement binary search in Java?
+                    </h4>
+                    <p class="text-sm text-gray-600">
+                      Asked by Alex Martinez • 2 hours ago
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                  <div class="flex items-center space-x-1">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                      ></path>
+                    </svg>
+                    <span>3 answers</span>
+                  </div>
+                  <div class="flex items-center space-x-1">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 15l7-7 7 7"
+                      ></path>
+                    </svg>
+                    <span>12</span>
+                  </div>
+                </div>
+              </div>
+              <p class="text-sm text-gray-700">
+                I'm struggling with the recursive approach. Can someone explain
+                the logic step by step?
+              </p>
+              <div class="flex items-center space-x-2 mt-3">
+                <span
+                  class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                  >Java</span
+                >
+                <span
+                  class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full"
+                  >Algorithms</span
+                >
+              </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-4 hover-lift">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center"
+                  >
+                    <span class="text-sm font-medium text-green-600">SC</span>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">
+                      Best practices for database design?
+                    </h4>
+                    <p class="text-sm text-gray-600">
+                      Asked by Sarah Chen • 5 hours ago
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                  <div class="flex items-center space-x-1">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                      ></path>
+                    </svg>
+                    <span>7 answers</span>
+                  </div>
+                  <div class="flex items-center space-x-1">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 15l7-7 7 7"
+                      ></path>
+                    </svg>
+                    <span>24</span>
+                  </div>
+                </div>
+              </div>
+              <p class="text-sm text-gray-700">
+                Working on my capstone project and need advice on proper
+                normalization and indexing strategies.
+              </p>
+              <div class="flex items-center space-x-2 mt-3">
+                <span
+                  class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
+                  >Database</span
+                >
+                <span
+                  class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full"
+                  >Design</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collaborate View -->
+      <div id="collaborate-view" class="view-content hidden">
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+            Collaboration & Communication
+          </h2>
+          <p class="text-gray-600">
+            Work together on group projects and connect with peers
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- Group Projects -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">
+                Active Projects
+              </h3>
+              <button class="text-teal-600 hover:text-teal-700">
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="space-y-4">
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="font-medium text-gray-900">E-Commerce System</h4>
+                  <span
+                    class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                    >In Progress</span
+                  >
+                </div>
+                <p class="text-sm text-gray-600 mb-3">
+                  Full-stack web application with payment integration
+                </p>
+
+                <div class="flex items-center space-x-2 mb-3">
+                  <div class="flex -space-x-2">
+                    <div
+                      class="w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center"
+                    >
+                      <span class="text-xs text-white font-medium">J</span>
+                    </div>
+                    <div
+                      class="w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center"
+                    >
+                      <span class="text-xs text-white font-medium">S</span>
+                    </div>
+                    <div
+                      class="w-6 h-6 bg-purple-500 rounded-full border-2 border-white flex items-center justify-center"
+                    >
+                      <span class="text-xs text-white font-medium">M</span>
+                    </div>
+                  </div>
+                  <span class="text-sm text-gray-600">3 members</span>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-600">Progress</span>
+                  <span class="font-medium text-gray-900">65%</span>
+                </div>
+                <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    class="bg-blue-500 h-2 rounded-full"
+                    style="width: 65%"
+                  ></div>
+                </div>
+
+                <div
+                  class="flex items-center justify-between mt-3 text-xs text-gray-500"
+                >
+                  <span>Due: Dec 15, 2024</span>
+                  <span>12 days left</span>
+                </div>
+              </div>
+
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="font-medium text-gray-900">
+                    Mobile App Prototype
+                  </h4>
+                  <span
+                    class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full"
+                    >Planning</span
+                  >
+                </div>
+                <p class="text-sm text-gray-600 mb-3">
+                  React Native fitness tracking application
+                </p>
+
+                <div class="flex items-center space-x-2 mb-3">
+                  <div class="flex -space-x-2">
+                    <div
+                      class="w-6 h-6 bg-red-500 rounded-full border-2 border-white flex items-center justify-center"
+                    >
+                      <span class="text-xs text-white font-medium">A</span>
+                    </div>
+                    <div
+                      class="w-6 h-6 bg-teal-500 rounded-full border-2 border-white flex items-center justify-center"
+                    >
+                      <span class="text-xs text-white font-medium">L</span>
+                    </div>
+                  </div>
+                  <span class="text-sm text-gray-600">2 members</span>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-600">Progress</span>
+                  <span class="font-medium text-gray-900">15%</span>
+                </div>
+                <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    class="bg-yellow-500 h-2 rounded-full"
+                    style="width: 15%"
+                  ></div>
+                </div>
+
+                <div
+                  class="flex items-center justify-between mt-3 text-xs text-gray-500"
+                >
+                  <span>Due: Jan 20, 2025</span>
+                  <span>48 days left</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Peer Mentorship -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+          >
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+              Peer Mentorship
+            </h3>
+
+            <div class="space-y-3">
+              <div
+                class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200"
+              >
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center"
+                  >
+                    <span class="text-sm font-medium text-white">DR</span>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">David Rodriguez</h4>
+                    <p class="text-sm text-gray-600">
+                      Java, Spring Boot, Databases
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span
+                    class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
+                    >Available</span
+                  >
+                  <button class="text-teal-600 hover:text-teal-700">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200"
+              >
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center"
+                  >
+                    <span class="text-sm font-medium text-white">EL</span>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">Emma Liu</h4>
+                    <p class="text-sm text-gray-600">
+                      Web Development, React, Node.js
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span
+                    class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full"
+                    >Busy</span
+                  >
+                  <button class="text-gray-400">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200"
+              >
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center"
+                  >
+                    <span class="text-sm font-medium text-white">KP</span>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">Kevin Park</h4>
+                    <p class="text-sm text-gray-600">
+                      Mobile Development, Flutter
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span
+                    class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
+                    >Available</span
+                  >
+                  <button class="text-teal-600 hover:text-teal-700">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              class="w-full mt-4 bg-teal-600 text-white py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors text-sm"
+            >
+              Become a Mentor
+            </button>
+          </div>
+        </div>
+
+        <!-- Discussion Threads -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">
+              Recent Discussions
+            </h3>
+            <button
+              class="bg-teal-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors text-sm"
+            >
+              Start Discussion
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex items-start space-x-3">
+                <div
+                  class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+                >
+                  <span class="text-sm font-medium text-white">JS</span>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <h4 class="font-medium text-gray-900">John Smith</h4>
+                    <span class="text-sm text-gray-500">• 2 hours ago</span>
+                  </div>
+                  <p class="text-sm text-gray-700 mb-3">
+                    Hey team! I've finished the user authentication module. The
+                    login and registration forms are working perfectly. Should I
+                    start working on the dashboard next?
+                  </p>
+                  <div
+                    class="flex items-center space-x-4 text-sm text-gray-500"
+                  >
+                    <button
+                      class="flex items-center space-x-1 hover:text-teal-600"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                        ></path>
+                      </svg>
+                      <span>Reply</span>
+                    </button>
+                    <span>3 replies</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex items-start space-x-3">
+                <div
+                  class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center"
+                >
+                  <span class="text-sm font-medium text-white">SC</span>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <h4 class="font-medium text-gray-900">Sarah Chen</h4>
+                    <span class="text-sm text-gray-500">• 4 hours ago</span>
+                  </div>
+                  <p class="text-sm text-gray-700 mb-3">
+                    Great work on the authentication! Yes, please proceed with
+                    the dashboard. I'll handle the product catalog integration.
+                    Let's sync up tomorrow to review the API endpoints.
+                  </p>
+                  <div
+                    class="flex items-center space-x-4 text-sm text-gray-500"
+                  >
+                    <button
+                      class="flex items-center space-x-1 hover:text-teal-600"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                        ></path>
+                      </svg>
+                      <span>Reply</span>
+                    </button>
+                    <span>1 reply</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wellness View -->
+      <div id="wellness-view" class="view-content hidden">
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+            Motivation & Wellness
+          </h2>
+          <p class="text-gray-600">
+            Track your mood, celebrate achievements, and maintain balance
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- Mood Tracker -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+          >
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+              Mood Tracker
+            </h3>
+
+            <div class="mb-6">
+              <p class="text-sm text-gray-600 mb-3">
+                How are you feeling today?
+              </p>
+              <div class="flex justify-between">
+                <button
+                  class="mood-icon w-12 h-12 rounded-full flex items-center justify-center"
+                  onclick="selectMood('very-sad')"
+                >
+                  <svg
+                    class="w-6 h-6 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 15s1.5-2 4-2 4 2 4 2"></path>
+                    <path d="M9 9h.01"></path>
+                    <path d="M15 9h.01"></path>
+                  </svg>
+                </button>
+                <button
+                  class="mood-icon w-12 h-12 rounded-full flex items-center justify-center"
+                  onclick="selectMood('sad')"
+                >
+                  <svg
+                    class="w-6 h-6 text-orange-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 15s1.5-2 4-2 4 2 4 2"></path>
+                    <path d="M9 9h.01"></path>
+                    <path d="M15 9h.01"></path>
+                  </svg>
+                </button>
+                <button
+                  class="mood-icon w-12 h-12 rounded-full flex items-center justify-center"
+                  onclick="selectMood('neutral')"
+                >
+                  <svg
+                    class="w-6 h-6 text-yellow-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                    <path d="M9 9h.01"></path>
+                    <path d="M15 9h.01"></path>
+                  </svg>
+                </button>
+                <button
+                  class="mood-icon active w-12 h-12 rounded-full flex items-center justify-center"
+                  onclick="selectMood('happy')"
+                >
+                  <svg
+                    class="w-6 h-6 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                    <path d="M9 9h.01"></path>
+                    <path d="M15 9h.01"></path>
+                  </svg>
+                </button>
+                <button
+                  class="mood-icon w-12 h-12 rounded-full flex items-center justify-center"
+                  onclick="selectMood('very-happy')"
+                >
+                  <svg
+                    class="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                    <path d="M9 9h.01"></path>
+                    <path d="M15 9h.01"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >What's affecting your mood?</label
+              >
+              <textarea
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                rows="3"
+                placeholder="Optional: Share what's on your mind..."
+              ></textarea>
+            </div>
+
+            <button
+              class="w-full bg-teal-600 text-white py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors"
+            >
+              Log Today's Mood
+            </button>
+
+            <!-- Weekly Trend -->
+            <div class="mt-6 pt-6 border-t border-gray-100">
+              <h4 class="font-medium text-gray-900 mb-3">This Week's Trend</h4>
+              <div class="flex items-end justify-between h-20 space-x-2">
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-6 bg-green-400 rounded-t"
+                    style="height: 60%"
+                  ></div>
+                  <span class="text-xs text-gray-500 mt-1">Mon</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-6 bg-green-500 rounded-t"
+                    style="height: 80%"
+                  ></div>
+                  <span class="text-xs text-gray-500 mt-1">Tue</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-6 bg-yellow-400 rounded-t"
+                    style="height: 50%"
+                  ></div>
+                  <span class="text-xs text-gray-500 mt-1">Wed</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-6 bg-green-400 rounded-t"
+                    style="height: 70%"
+                  ></div>
+                  <span class="text-xs text-gray-500 mt-1">Thu</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-6 bg-green-500 rounded-t"
+                    style="height: 85%"
+                  ></div>
+                  <span class="text-xs text-gray-500 mt-1">Fri</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-6 bg-green-600 rounded-t"
+                    style="height: 90%"
+                  ></div>
+                  <span class="text-xs text-gray-500 mt-1">Sat</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-6 bg-green-500 rounded-t"
+                    style="height: 75%"
+                  ></div>
+                  <span class="text-xs text-gray-500 mt-1">Sun</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Achievements Journal -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+          >
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+              Achievements & Milestones
+            </h3>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+              <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                <div
+                  class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2"
+                >
+                  <svg
+                    class="w-6 h-6 text-yellow-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                    ></path>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-900">Academic Star</p>
+                <p class="text-xs text-gray-600">Completed 10 assignments</p>
+              </div>
+
+              <div class="text-center p-4 bg-green-50 rounded-lg">
+                <div
+                  class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2"
+                >
+                  <svg
+                    class="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    ></path>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-900">
+                  Consistency King
+                </p>
+                <p class="text-xs text-gray-600">7-day study streak</p>
+              </div>
+
+              <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <div
+                  class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2"
+                >
+                  <svg
+                    class="w-6 h-6 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    ></path>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-900">Team Player</p>
+                <p class="text-xs text-gray-600">Helped 5 classmates</p>
+              </div>
+
+              <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <div
+                  class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2"
+                >
+                  <svg
+                    class="w-6 h-6 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12,6 12,12 16,14"></polyline>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-900">Focus Champion</p>
+                <p class="text-xs text-gray-600">50 Pomodoro sessions</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <h4 class="font-medium text-gray-900">Recent Wins</h4>
+              <div class="space-y-2">
+                <div
+                  class="flex items-center space-x-3 p-2 bg-green-50 rounded-lg"
+                >
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <p class="text-sm text-gray-700">
+                    Completed Database Design project ahead of schedule
+                  </p>
+                </div>
+                <div
+                  class="flex items-center space-x-3 p-2 bg-blue-50 rounded-lg"
+                >
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <p class="text-sm text-gray-700">
+                    Maintained 7-day study streak
+                  </p>
+                </div>
+                <div
+                  class="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg"
+                >
+                  <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <p class="text-sm text-gray-700">
+                    Helped Sarah with Java concepts
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Self-Care Reminders -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            Self-Care Reminders
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+              <div
+                class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3"
+              >
+                <svg
+                  class="w-6 h-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h4 class="font-medium text-gray-900 mb-2">Stay Hydrated</h4>
+              <p class="text-sm text-gray-600 mb-3">
+                Drink water regularly throughout the day
+              </p>
+              <button
+                class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                Set Reminder
+              </button>
+            </div>
+
+            <div class="text-center p-4 bg-green-50 rounded-lg">
+              <div
+                class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3"
+              >
+                <svg
+                  class="w-6 h-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h4 class="font-medium text-gray-900 mb-2">Take Breaks</h4>
+              <p class="text-sm text-gray-600 mb-3">
+                Step away from your screen every hour
+              </p>
+              <button
+                class="text-green-600 hover:text-green-700 text-sm font-medium"
+              >
+                Set Reminder
+              </button>
+            </div>
+
+            <div class="text-center p-4 bg-purple-50 rounded-lg">
+              <div
+                class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3"
+              >
+                <svg
+                  class="w-6 h-6 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  ></path>
+                </svg>
+              </div>
+              <h4 class="font-medium text-gray-900 mb-2">Get Sleep</h4>
+              <p class="text-sm text-gray-600 mb-3">
+                Aim for 7-8 hours of quality sleep
+              </p>
+              <button
+                class="text-purple-600 hover:text-purple-700 text-sm font-medium"
+              >
+                Set Reminder
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Floating Chat Assistant -->
+    <div
+      id="chat-assistant"
+      class="floating-chat chat-collapsed bg-teal-600 rounded-full shadow-lg cursor-pointer transition-all duration-300"
+    >
+      <div
+        id="chat-toggle"
+        class="w-full h-full flex items-center justify-center"
+        onclick="toggleChat()"
+      >
+        <svg
+          class="w-6 h-6 text-white"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          ></path>
+        </svg>
+      </div>
+
+      <div id="chat-content" class="hidden p-4 h-full flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-white">Study Assistant</h3>
+          <button onclick="toggleChat()" class="text-white hover:text-gray-200">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <div
+          id="chat-messages"
+          class="flex-1 bg-white rounded-lg p-3 mb-3 overflow-y-auto max-h-64"
+        >
+          <div class="space-y-3">
+            <div class="flex items-start space-x-2">
+              <div
+                class="w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <svg
+                  class="w-3 h-3 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  ></path>
+                </svg>
+              </div>
+              <div class="bg-gray-100 rounded-lg p-2 max-w-xs">
+                <p class="text-sm text-gray-700">
+                  Hi! I'm your AI study assistant. I can help with:
+                </p>
+                <ul class="text-xs text-gray-600 mt-1 list-disc list-inside">
+                  <li>Explaining concepts</li>
+                  <li>Study tips</li>
+                  <li>Assignment help</li>
+                  <li>Time management</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form onsubmit="sendMessage(event)" class="flex space-x-2">
+          <input
+            id="chat-input"
+            type="text"
+            placeholder="Ask me anything..."
+            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+          />
+          <button
+            type="submit"
+            class="bg-white text-teal-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              ></path>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Focus Mode Overlay -->
+    <div
+      id="focus-overlay"
+      class="fixed inset-0 focus-mode-overlay hidden items-center justify-center z-50"
+    >
+      <div class="text-center text-white">
+        <div class="mb-8">
+          <div class="relative mx-auto">
+            <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                stroke="rgba(255,255,255,0.3)"
+                stroke-width="4"
+                fill="none"
+              ></circle>
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                stroke="white"
+                stroke-width="4"
+                fill="none"
+                class="timer-circle"
+                style="stroke-dashoffset: 141.5"
+              ></circle>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="text-center">
+                <div class="text-4xl font-bold mb-2" id="focus-timer-display">
+                  25:00
+                </div>
+                <div class="text-lg opacity-75">Focus Time</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-2xl font-semibold">Focus Mode Active</h2>
+          <p class="text-lg opacity-75">Stay focused on your current task</p>
+          <div class="flex justify-center space-x-4 mt-8">
+            <button
+              onclick="pauseFocusMode()"
+              class="bg-white bg-opacity-20 text-white px-6 py-3 rounded-lg font-medium hover:bg-opacity-30 transition-colors"
+            >
+              Pause
+            </button>
+            <button
+              onclick="endFocusMode()"
+              class="bg-white text-teal-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+            >
+              End Session
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Global state
+      let currentView = "dashboard";
+      let chatExpanded = false;
+      let focusModeActive = false;
+      let timerInterval = null;
+      let timeRemaining = 25 * 60; // 25 minutes in seconds
+      let mobileMenuOpen = false;
+
+      // Mobile menu toggle
+      function toggleMobileMenu() {
+        const mobileMenu = document.getElementById("mobile-menu");
+        if (mobileMenuOpen) {
+          mobileMenu.classList.add("hidden");
+          mobileMenuOpen = false;
+        } else {
+          mobileMenu.classList.remove("hidden");
+          mobileMenuOpen = true;
+        }
+      }
+
+      // Navigation
+      function switchView(viewName) {
+        // Hide all views
+        document.querySelectorAll(".view-content").forEach((view) => {
+          view.classList.add("hidden");
+        });
+
+        // Show selected view
+        document.getElementById(viewName + "-view").classList.remove("hidden");
+
+        // Update navigation
+        document.querySelectorAll(".nav-btn").forEach((btn) => {
+          btn.classList.remove("text-teal-600", "bg-teal-50");
+          btn.classList.add("text-gray-600");
+        });
+
+        event.target.classList.remove("text-gray-600");
+        event.target.classList.add("text-teal-600", "bg-teal-50");
+
+        // Close mobile menu after selection
+        if (mobileMenuOpen) {
+          toggleMobileMenu();
+        }
+
+        currentView = viewName;
+      }
+
+      // Mood selection
+      function selectMood(mood) {
+        document.querySelectorAll(".mood-icon").forEach((icon) => {
+          icon.classList.remove("active");
+        });
+        event.target.closest(".mood-icon").classList.add("active");
+      }
+
+      // Chat assistant
+      function toggleChat() {
+        const chatAssistant = document.getElementById("chat-assistant");
+        const chatToggle = document.getElementById("chat-toggle");
+        const chatContent = document.getElementById("chat-content");
+
+        if (chatExpanded) {
+          chatAssistant.classList.remove("chat-expanded");
+          chatAssistant.classList.add("chat-collapsed");
+          chatToggle.classList.remove("hidden");
+          chatContent.classList.add("hidden");
+          chatExpanded = false;
+        } else {
+          chatAssistant.classList.remove("chat-collapsed");
+          chatAssistant.classList.add("chat-expanded");
+          chatToggle.classList.add("hidden");
+          chatContent.classList.remove("hidden");
+          chatExpanded = true;
+        }
+      }
+
+      // Timer functions
+      function startTimer() {
+        if (timerInterval) return;
+
+        timerInterval = setInterval(() => {
+          timeRemaining--;
+          updateTimerDisplay();
+          updateTimerCircle();
+
+          if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            alert("Focus session complete! Time for a break.");
+            resetTimer();
+          }
+        }, 1000);
+      }
+
+      function pauseTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function resetTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+        timeRemaining = 25 * 60;
+        updateTimerDisplay();
+        updateTimerCircle();
+      }
+
+      function updateTimerDisplay() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        const display = `${minutes.toString().padStart(2, "0")}:${seconds
+          .toString()
+          .padStart(2, "0")}`;
+
+        const timerDisplay = document.getElementById("timer-display");
+        const focusTimerDisplay = document.getElementById(
+          "focus-timer-display"
+        );
+
+        if (timerDisplay) timerDisplay.textContent = display;
+        if (focusTimerDisplay) focusTimerDisplay.textContent = display;
+      }
+
+      function updateTimerCircle() {
+        const totalTime = 25 * 60;
+        const progress = (totalTime - timeRemaining) / totalTime;
+        const circumference = 283;
+        const offset = circumference - progress * circumference;
+
+        document.querySelectorAll(".timer-circle").forEach((circle) => {
+          circle.style.strokeDashoffset = offset;
+        });
+      }
+
+      // Focus mode
+      function startFocusMode() {
+        focusModeActive = true;
+        document.getElementById("focus-overlay").classList.remove("hidden");
+        document.getElementById("focus-overlay").classList.add("flex");
+        timeRemaining = 25 * 60;
+        updateTimerDisplay();
+        updateTimerCircle();
+        startTimer();
+      }
+
+      function pauseFocusMode() {
+        pauseTimer();
+      }
+
+      function endFocusMode() {
+        focusModeActive = false;
+        document.getElementById("focus-overlay").classList.add("hidden");
+        document.getElementById("focus-overlay").classList.remove("flex");
+        pauseTimer();
+        resetTimer();
+      }
+
+      // Modal functions
+      function showAddTaskModal() {
+        alert("Add Task modal would open here. This is a demo interface.");
+      }
+
+      // Chatbot functionality
+      const chatResponses = {
+        // Study help responses
+        database:
+          "Database concepts can be tricky! Are you working on normalization, SQL queries, or database design? I can break down any specific topic for you.",
+        java: "Java is a powerful language! Whether you need help with OOP concepts, syntax, or debugging, I'm here to help. What specific Java topic are you working on?",
+        programming:
+          "Programming can be challenging but rewarding! What language or concept would you like help with? I can explain algorithms, data structures, or debugging techniques.",
+        assignment:
+          "I'd be happy to help with your assignment! Can you tell me what subject it's for and what specific part you're struggling with?",
+        study:
+          "Great question! Here are some effective study techniques:\n• Use the Pomodoro Technique (25min focus + 5min break)\n• Create mind maps for complex topics\n• Practice active recall instead of just re-reading\n• Form study groups with classmates",
+        time: "Time management is crucial for academic success! Try:\n• Prioritizing tasks by urgency and importance\n• Breaking large projects into smaller tasks\n• Using time-blocking to schedule study sessions\n• Setting realistic daily goals",
+        stress:
+          "Feeling stressed is normal! Here are some tips:\n• Take regular breaks during study sessions\n• Practice deep breathing exercises\n• Get enough sleep (7-8 hours)\n• Talk to friends, family, or counselors\n• Remember that asking for help is a sign of strength!",
+        motivation:
+          "Staying motivated can be tough! Try these strategies:\n• Set small, achievable daily goals\n• Celebrate your wins, no matter how small\n• Connect with study buddies for accountability\n• Remember your long-term goals and why you started\n• Take care of your physical and mental health",
+
+        // Default responses
+        hello:
+          "Hello! I'm here to help you with your studies. What can I assist you with today?",
+        hi: "Hi there! Ready to tackle some learning together? What subject or topic would you like help with?",
+        help: "I'm here to help! I can assist with:\n• Explaining difficult concepts\n• Study strategies and tips\n• Time management advice\n• Assignment guidance\n• Motivation and stress management\n\nWhat would you like to explore?",
+        thanks:
+          "You're very welcome! I'm always here when you need study support. Keep up the great work!",
+        "thank you":
+          "You're very welcome! I'm always here when you need study support. Keep up the great work!",
+      };
+
+      function sendMessage(event) {
+        event.preventDefault();
+
+        const input = document.getElementById("chat-input");
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, "user");
+
+        // Clear input
+        input.value = "";
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Generate bot response after a short delay
+        setTimeout(() => {
+          hideTypingIndicator();
+          const response = generateResponse(message);
+          addMessage(response, "bot");
+        }, 1000 + Math.random() * 1000); // Random delay between 1-2 seconds
+      }
+
+      function addMessage(message, sender) {
+        const chatMessages = document.getElementById("chat-messages");
+        const messagesContainer = chatMessages.querySelector(".space-y-3");
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "flex items-start space-x-2";
+
+        if (sender === "user") {
+          messageDiv.className += " flex-row-reverse space-x-reverse";
+          messageDiv.innerHTML = `
+                    <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-xs text-white font-medium">You</span>
+                    </div>
+                    <div class="bg-blue-100 rounded-lg p-2 max-w-xs">
+                        <p class="text-sm text-gray-700">${message}</p>
+                    </div>
+                `;
+        } else {
+          messageDiv.innerHTML = `
+                    <div class="w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="bg-gray-100 rounded-lg p-2 max-w-xs">
+                        <p class="text-sm text-gray-700 whitespace-pre-line">${message}</p>
+                    </div>
+                `;
+        }
+
+        messagesContainer.appendChild(messageDiv);
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function showTypingIndicator() {
+        const chatMessages = document.getElementById("chat-messages");
+        const messagesContainer = chatMessages.querySelector(".space-y-3");
+
+        const typingDiv = document.createElement("div");
+        typingDiv.id = "typing-indicator";
+        typingDiv.className = "flex items-start space-x-2";
+        typingDiv.innerHTML = `
+                <div class="w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>
+                <div class="bg-gray-100 rounded-lg p-2">
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
+                </div>
+            `;
+
+        messagesContainer.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function hideTypingIndicator() {
+        const typingIndicator = document.getElementById("typing-indicator");
+        if (typingIndicator) {
+          typingIndicator.remove();
+        }
+      }
+
+      function generateResponse(message) {
+        const lowerMessage = message.toLowerCase();
+
+        // Check for specific keywords and return appropriate responses
+        for (const [keyword, response] of Object.entries(chatResponses)) {
+          if (lowerMessage.includes(keyword)) {
+            return response;
+          }
+        }
+
+        // Context-aware responses based on current view
+        if (currentView === "tasks") {
+          return "I see you're working on tasks! Need help prioritizing, breaking down a large assignment, or managing deadlines? I can provide specific strategies for task management.";
+        } else if (currentView === "focus") {
+          return "Focus mode is great for productivity! Are you having trouble concentrating, or would you like tips on maintaining focus during study sessions?";
+        } else if (currentView === "wellness") {
+          return "Taking care of your wellbeing is so important! Are you feeling stressed, need motivation, or want tips for maintaining a healthy study-life balance?";
+        }
+
+        // Fallback responses
+        const fallbackResponses = [
+          "That's an interesting question! Could you provide a bit more detail so I can give you the most helpful answer?",
+          "I'd love to help you with that! Can you tell me more about what specific aspect you're struggling with?",
+          "Great question! To give you the best advice, could you share a bit more context about what you're working on?",
+          "I'm here to help! Could you elaborate on that topic so I can provide more targeted assistance?",
+        ];
+
+        return fallbackResponses[
+          Math.floor(Math.random() * fallbackResponses.length)
+        ];
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        updateTimerDisplay();
+        updateTimerCircle();
+      });
+    </script>
+    <script>
+      (function () {
+        function c() {
+          var b = a.contentDocument || a.contentWindow.document;
+          if (b) {
+            var d = b.createElement("script");
+            d.innerHTML =
+              "window.__CF$cv$params={r:'98639db37075fed1',t:'MTc1OTA2NjQ0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+            b.getElementsByTagName("head")[0].appendChild(d);
+          }
+        }
+        if (document.body) {
+          var a = document.createElement("iframe");
+          a.height = 1;
+          a.width = 1;
+          a.style.position = "absolute";
+          a.style.top = 0;
+          a.style.left = 0;
+          a.style.border = "none";
+          a.style.visibility = "hidden";
+          document.body.appendChild(a);
+          if ("loading" !== document.readyState) c();
+          else if (window.addEventListener)
+            document.addEventListener("DOMContentLoaded", c);
+          else {
+            var e = document.onreadystatechange || function () {};
+            document.onreadystatechange = function (b) {
+              e(b);
+              "loading" !== document.readyState &&
+                ((document.onreadystatechange = e), c());
+            };
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
